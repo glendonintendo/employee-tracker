@@ -17,6 +17,7 @@
 - console.table [here](https://www.npmjs.com/package/console.table)
 - jest
 - nodemon
+- mysql
 ## Installation, Usage, and Tests
 
 ## Demo
