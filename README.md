@@ -18,6 +18,7 @@
 - jest
 - nodemon
 - mysql
+- node-fetch
 ## Installation, Usage, and Tests
 
 ## Demo
