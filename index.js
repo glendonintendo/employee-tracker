@@ -1,11 +1,12 @@
-const fetch = require('node-fetch');
 const inquirer = require('inquirer');
 const { 
   getAllDepartments,
   getAllRoles,
   getAllEmployees,
   postDepartment,
-  postRole
+  postRole,
+  postEmployee,
+  getDepartmentIdByName
 } = require('./utils/crudFunctions.js');
 
 function initialize() {
@@ -47,9 +48,9 @@ function getTask(option) {
     case "View all employees":
       return viewAllEmployees();
     case "Add an employee":
-      return postEmployee();
+      return addEmployee();
     case "Update an employee's email":
-      return putEmployeeEmail();
+      return editEmployeeEmail();
     case "Exit Application":
       console.log("Buh bye.");
       return;
@@ -90,14 +91,6 @@ function viewAllRoles() {
     });
 };
 
-function viewAllEmployees() {
-  return getAllEmployees()
-    .then(data => {
-      console.table(data.data);
-      return taskPrompt();
-    });
-};
-
 function addRole() {
   return getAllDepartments()
     .then(data => {
@@ -119,28 +112,57 @@ function addRole() {
         },
         {
           type: "list",
-          name: "department_id",
+          name: "department",
           message: "Which department is this role for?",
           choices: departments
         }
       ])
     })
-    .then(data => {
-      console.log(data);
+    .then(async function(data) {
+      const departmentIdResponse = await getDepartmentIdByName(data.department);
+      data.department_id = departmentIdResponse.data[0].department_id;
       return postRole(data);
     })
     .then(data => {
-      console.log(data);
+      console.log(`Added ${data.data.title} to the roles table.`);
       return taskPrompt();
     });
 };
 
-function postEmployee() {
-
+function viewAllEmployees() {
+  return getAllEmployees()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
 };
 
-function putEmployeeEmail(){
+async function addEmployee() {
+  const employeesAndRoles = await Promise.all([getAllEmployees(), getAllRoles()]).then(data => {
+    return {employees: data[0].data, roles: data[1].data}
+  });
 
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "first_name",
+      message: "What is the employee's first name?"
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "What is the employee's last name?"
+    },
+    {
+      type: "input",
+      name: "last_name",
+      message: "Which department does the ?"
+    }
+  ])
+};
+
+function editEmployeeEmail(){
+  return;
 };
 
 initialize();
