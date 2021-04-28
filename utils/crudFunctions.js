@@ -7,8 +7,18 @@ function getAllDepartments() {
           'Content-Type': 'application/json',
         }
     })
-        .then(data => data.json());
+        .then(response => response.json());
 };
+
+function getDepartmentIdByName(name) {
+    return fetch(`http://localhost:3001/api/department/${name}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.json());
+}
 
 function getAllRoles() {
     return fetch('http://localhost:3001/api/roles/', {
@@ -17,7 +27,7 @@ function getAllRoles() {
           'Content-Type': 'application/json',
         }
     })
-        .then(data => data.json())
+        .then(response => response.json())
 };
 
 function getAllEmployees() {
@@ -27,7 +37,7 @@ function getAllEmployees() {
           'Content-Type': 'application/json',
         }
     })
-        .then(data => data.json())
+        .then(response => response.json());
 };
 
 function postDepartment(data) {
@@ -39,7 +49,7 @@ function postDepartment(data) {
         },
         body: JSON.stringify(data)
     })
-        .then(response => response.json())
+        .then(response => response.json());
 };
 
 function postRole(data) {
@@ -51,7 +61,19 @@ function postRole(data) {
         },
         body: JSON.stringify(data)
     })
-        .then(response => response.json())
+        .then(response => response.json());
+};
+
+function postEmployee(data) {
+    return fetch('http://localhost:3001/api/employee', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => response.json());
 }
 
 module.exports = {
@@ -59,5 +81,7 @@ module.exports = {
     getAllRoles,
     getAllEmployees,
     postDepartment,
-    postRole
+    postRole,
+    postEmployee,
+    getDepartmentIdByName
 };
