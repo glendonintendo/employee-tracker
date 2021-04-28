@@ -1,8 +1,15 @@
 const fetch = require('node-fetch');
 const inquirer = require('inquirer');
+const { 
+  getAllDepartments,
+  getAllRoles,
+  getAllEmployees,
+  postDepartment,
+  postRole
+} = require('./utils/crudFunctions.js');
 
-function initialize(){
-  console.log('Welcome to the Employee Tracker system.')
+function initialize() {
+  console.log('Welcome to the Employee Tracker system.');
   return taskPrompt();
 };
 
@@ -30,17 +37,17 @@ function taskPrompt() {
 function getTask(option) {
   switch (option) {
     case "View all departments":
-      return getAllDepartments();
-    case "View all employees":
-      return getAllEmployees();
-    case "View all roles":
-      return getAllRoles();
+      return viewAllDepartments();
     case "Add a department":
-      return postDepartment();
+      return addDepartment();
+    case "View all roles":
+      return viewAllRoles();
+    case "Add a role":
+      return addRole();
+    case "View all employees":
+      return viewAllEmployees();
     case "Add an employee":
       return postEmployee();
-    case "Add a role":
-      return postRole();
     case "Update an employee's email":
       return putEmployeeEmail();
     case "Exit Application":
@@ -49,49 +56,15 @@ function getTask(option) {
   }
 }
 
-function getAllDepartments() {
-  return fetch('http://localhost:3001/api/departments/', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  })
-    .then(data => data.json())
+function viewAllDepartments() {
+  return getAllDepartments()
     .then(data => {
       console.table(data.data);
       return taskPrompt();
     });
 };
 
-function getAllRoles() {
-  return fetch('http://localhost:3001/api/roles/', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  })
-    .then(data => data.json())
-    .then(data => {
-      console.table(data.data);
-      return taskPrompt();
-    });
-};
-
-function getAllEmployees() {
-  return fetch('http://localhost:3001/api/employees/', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  })
-    .then(data => data.json())
-    .then(data => {
-      console.table(data.data);
-      return taskPrompt();
-    });
-};
-
-function postDepartment() {
+function addDepartment() {
   return inquirer.prompt([
     {
       type: "input",
@@ -101,30 +74,32 @@ function postDepartment() {
   ])
     .then(data => { 
       console.log(data);
-      return fetch(`http://localhost:3001/api/department`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
+      return postDepartment(data);
     })
-    .then(response => response.json())
     .then(data => {
       console.log(data)
       return taskPrompt();
     })
 };
 
-function postRole() {
-  return fetch('http://localhost:3001/api/departments/', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  })
-    .then(data => data.json())
+function viewAllRoles() {
+  return getAllRoles()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
+};
+
+function viewAllEmployees() {
+  return getAllEmployees()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
+};
+
+function addRole() {
+  return getAllDepartments()
     .then(data => {
       let departments = data.data.reduce((acc, cur) => {
         acc.push(cur.name);
@@ -152,16 +127,8 @@ function postRole() {
     })
     .then(data => {
       console.log(data);
-      return fetch('http://localhost:3001/api/role', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
+      return postRole(data);
     })
-    .then(response => response.json())
     .then(data => {
       console.log(data);
       return taskPrompt();
