@@ -80,4 +80,28 @@ router.put('/employee/:id', (req, res) => {
     });
 });
 
+router.delete('employee/:id', (req, res) => {
+    const sql = `DELETE FROM employees WHERE id = 5`;
+    const params = [req.params.id];
+
+    console.log(sql, params);
+
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            res.statusMessage(400).json({ error: res.message });
+        } else if (!result.affectedRows) {
+            res.json({
+                message: 'Employee not found'
+            });
+        } else {
+            console.log("made it to the correct else statement")
+            res.json({
+                message: 'deleted',
+                changes: result.affectedRows,
+                id: req.params.id
+            });
+        }
+    });
+});
+
 module.exports = router;
