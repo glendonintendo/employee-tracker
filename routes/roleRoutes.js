@@ -5,7 +5,11 @@ const router = express.Router();
 
 // view all roles
 router.get('/roles', (req, res) => {
-    sql = `SELECT * FROM roles`;
+    sql = `
+        SELECT roles.id, title, salary, name AS department
+        FROM roles
+        LEFT JOIN departments ON roles.department_id = departments.id;
+    `;
 
     db.query(sql, (err, rows) => {
         if (err) {
