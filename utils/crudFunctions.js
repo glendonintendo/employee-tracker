@@ -10,16 +10,6 @@ function getAllDepartments() {
         .then(response => response.json());
 };
 
-function getDepartmentIdByName(name) {
-    return fetch(`http://localhost:3001/api/department/${name}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-        .then(response => response.json());
-}
-
 function getAllRoles() {
     return fetch('http://localhost:3001/api/roles/', {
         method: 'GET',
@@ -39,7 +29,7 @@ function getAllEmployees() {
     })
         .then(response => response.json())
         .then(data => {
-            data.data.forEach(employeeObj => employeeObj.fullName = `${employeeObj.first_name} ${employeeObj.last_name}`);
+            data.data.forEach(employeeObj => employeeObj.full_name = `${employeeObj.first_name} ${employeeObj.last_name}`);
             return data;
         });
 };
@@ -78,6 +68,18 @@ function postEmployee(data) {
         body: JSON.stringify(data)
     })
         .then(response => response.json());
+};
+
+function putEmployeeRole(data) {
+    return fetch(`http://localhost:3001/api/employee/${data.id}`, {
+        method: 'PUT',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => response.json());
 }
 
 module.exports = {
@@ -87,5 +89,5 @@ module.exports = {
     postDepartment,
     postRole,
     postEmployee,
-    getDepartmentIdByName
+    putEmployeeRole
 };
