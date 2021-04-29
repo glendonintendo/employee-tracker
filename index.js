@@ -6,12 +6,13 @@ const {
   postDepartment,
   postRole,
   postEmployee,
-  getDepartmentIdByName
+  putEmployeeRole
 } = require('./utils/crudFunctions.js');
-const generateChoicesArray = require('./utils/generateChoicesArray.js')
+const generateChoicesArray = require('./utils/generateChoicesArray.js');
+const cTable = require('console.table');
 
 function initialize() {
-  console.log('Welcome to the Employee Tracker system.');
+  console.log('\nWelcome to the Employee Tracker system.\n');
   return taskPrompt();
 };
 
@@ -23,12 +24,12 @@ function taskPrompt() {
       message: "What would you like to do?",
       choices: [
         "View all departments",
-        "Add a department", 
         "View all roles", 
-        "Add a role",
         "View all employees",
+        "Add a department", 
+        "Add a role",
         "Add an employee", 
-        "Update an employee's email",
+        "Update an employee's role",
         "Exit application"
       ]
     }
@@ -40,18 +41,18 @@ function getTask(option) {
   switch (option) {
     case "View all departments":
       return viewAllDepartments();
-    case "Add a department":
-      return addDepartment();
     case "View all roles":
       return viewAllRoles();
-    case "Add a role":
-      return addRole();
     case "View all employees":
       return viewAllEmployees();
+    case "Add a department":
+      return addDepartment();
+    case "Add a role":
+      return addRole();
     case "Add an employee":
       return addEmployee();
-    case "Update an employee's email":
-      return editEmployeeEmail();
+    case "Update an employee's role":
+      return editEmployeeRole();
     case "Exit Application":
       console.log("Buh bye.");
       return;
@@ -60,6 +61,22 @@ function getTask(option) {
 
 function viewAllDepartments() {
   return getAllDepartments()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
+};
+
+function viewAllRoles() {
+  return getAllRoles()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
+};
+
+function viewAllEmployees() {
+  return getAllEmployees()
     .then(data => {
       console.table(data.data);
       return taskPrompt();
@@ -75,59 +92,41 @@ function addDepartment() {
     }
   ])
     .then(data => { 
-      console.log(data);
       return postDepartment(data);
     })
     .then(data => {
-      console.log(data)
+      console.log(`\nAdded ${data.data.name} to the departments table.\n`);
       return taskPrompt();
     })
 };
 
-function viewAllRoles() {
-  return getAllRoles()
-    .then(data => {
-      console.table(data.data);
-      return taskPrompt();
-    });
-};
+async function addRole() {
+  const departments = await getAllDepartments();
 
-function addRole() {
-  return getAllDepartments()
-    .then(data => inquirer.prompt([
-        {
-          type: "input",
-          name: "title",
-          message: "What is the title of the role?"
-        },
-        {
-          type: "input",
-          name: "salary",
-          message: "What is the salary of the role?"
-        },
-        {
-          type: "list",
-          name: "department",
-          message: "Which department is this role for?",
-          choices: generateChoicesArray("name", data.data)
-        }
-      ])
-    )
-    .then(async function(data) {
-      const departmentIdResponse = await getDepartmentIdByName(data.department);
-      data.department_id = departmentIdResponse.data[0].department_id;
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "title",
+      message: "What is the title of the role?"
+    },
+    {
+      type: "input",
+      name: "salary",
+      message: "What is the salary of the role?"
+    },
+    {
+      type: "list",
+      name: "department",
+      message: "Which department is this role for?",
+      choices: generateChoicesArray("name", departments.data)
+    }
+  ])
+    .then(data => {
+      data.department_id = departments.data.filter(department => department.name = data.department)[0].id;
       return postRole(data);
     })
     .then(data => {
-      console.log(`Added ${data.data.title} to the roles table.`);
-      return taskPrompt();
-    });
-};
-
-function viewAllEmployees() {
-  return getAllEmployees()
-    .then(data => {
-      console.table(data.data);
+      console.log(`\nAdded ${data.data.title} to the roles table.\n`);
       return taskPrompt();
     });
 };
@@ -158,22 +157,48 @@ async function addEmployee() {
       type: "list",
       name: "manager",
       message: "Who is this employee's manager?",
-      choices: generateChoicesArray('fullName', employeesAndRoles.employees)
+      choices: ["None", ...generateChoicesArray('full_name', employeesAndRoles.employees)]
     }
   ])
-    .then(async function(data) {
+    .then(data => {
       data.role_id = employeesAndRoles.roles.filter(roles => roles.title === data.role)[0].id;
-      data.manager_id = employeesAndRoles.employees.filter(employees => employees.fullName === data.manager)[0].id;
+      data.manager_id = (data.manager === "None") ? null : employeesAndRoles.employees.filter(employees => employees.full_name === data.manager)[0].id;
       return postEmployee(data);
     })
     .then(data => {
-      console.log(`Added ${data.data.first_name} ${data.data.last_name} to the employees table.`);
+      console.log(`\nAdded ${data.data.first_name} ${data.data.last_name} to the employees table.\n`);
       return taskPrompt();
     })
 };
 
-function editEmployeeEmail(){
-  return;
+async function editEmployeeRole(){
+  const employeesAndRoles = await Promise.all([getAllEmployees(), getAllRoles()]).then(data => {
+    return {employees: data[0].data, roles: data[1].data}
+  });
+  
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "full_name",
+      message: "Which employee would you like to update?",
+      choices: generateChoicesArray('full_name', employeesAndRoles.employees)
+    },
+    {
+      type: "list",
+      name: "title",
+      message: "What role are they now fulfilling?",
+      choices: generateChoicesArray('title', employeesAndRoles.roles)
+    }
+  ])
+    .then(data => {
+      data.id = employeesAndRoles.employees.filter(employee => employee.full_name === data.full_name)[0].id;
+      data.role_id = employeesAndRoles.roles.filter(role => role.title === data.title)[0].id;
+      return putEmployeeRole(data);
+    })
+    .then(data => {
+      console.log(`\nUpdated ${data.data.full_name} to have the role of ${data.data.title}.\n`);
+      return taskPrompt();
+    });
 };
 
 initialize();
