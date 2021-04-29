@@ -6,7 +6,8 @@ const {
   postDepartment,
   postRole,
   postEmployee,
-  putEmployeeRole
+  putEmployeeRole,
+  deleteEmployee
 } = require('./utils/crudFunctions.js');
 const generateChoicesArray = require('./utils/generateChoicesArray.js');
 const cTable = require('console.table');
@@ -30,6 +31,7 @@ function taskPrompt() {
         "Add a role",
         "Add an employee", 
         "Update an employee's role",
+        "Remove an employee",
         "Exit application"
       ]
     }
@@ -53,6 +55,8 @@ function getTask(option) {
       return addEmployee();
     case "Update an employee's role":
       return editEmployeeRole();
+    case "Remove an employee":
+      return removeEmployee();
     case "Exit Application":
       console.log("Buh bye.");
       return;
@@ -200,5 +204,24 @@ async function editEmployeeRole(){
       return taskPrompt();
     });
 };
+
+async function removeEmployee() {
+  const employees = await getAllEmployees();
+
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "full_name",
+      message: "Which employee would you like to remove?",
+      choices: generateChoicesArray('full_name', employees.data)
+    }
+  ])
+    .then(data => {
+      data.id = employees.data.filter(employee => employee.full_name === data.full_name)[0].id;
+      console.log(data);
+      return deleteEmployee(data);
+    })
+    .then(data => console.log(data));
+}
 
 initialize();
