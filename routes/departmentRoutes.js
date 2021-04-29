@@ -19,22 +19,6 @@ router.get('/departments', (req, res) => {
     });
 });
 
-router.get('/department/:name', (req, res) => {
-    const sql = `SELECT id AS department_id FROM departments WHERE name = (?)`;
-    const params = [req.params.name];
-    
-    db.query(sql, params, (err, row) => {
-        if (err) {
-            res.status(400).json({ error: err });
-            return;
-        }
-        res.json({
-            message: 'success',
-            data: row
-        });
-    }); 
-});
-
 // add department
 router.post('/department', ({ body }, res) => {
     const errors = inputCheck(body, 'name');
