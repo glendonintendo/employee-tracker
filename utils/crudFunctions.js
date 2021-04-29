@@ -80,6 +80,21 @@ function putEmployeeRole(data) {
         body: JSON.stringify(data)
     })
         .then(response => response.json());
+};
+
+function deleteEmployee(data) {
+    console.log('made it to the deleteEmployee function')
+    return fetch(`http://localhost:3001/api/employee/${data.id}`, {
+        method: 'DELETE',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            console.log("returned a response from server");
+            return response.json()});
 }
 
 module.exports = {
@@ -89,5 +104,6 @@ module.exports = {
     postDepartment,
     postRole,
     postEmployee,
-    putEmployeeRole
+    putEmployeeRole,
+    deleteEmployee
 };
