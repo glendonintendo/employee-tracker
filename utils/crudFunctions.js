@@ -37,7 +37,11 @@ function getAllEmployees() {
           'Content-Type': 'application/json',
         }
     })
-        .then(response => response.json());
+        .then(response => response.json())
+        .then(data => {
+            data.data.forEach(employeeObj => employeeObj.fullName = `${employeeObj.first_name} ${employeeObj.last_name}`);
+            return data;
+        });
 };
 
 function postDepartment(data) {
