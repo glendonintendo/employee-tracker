@@ -8,6 +8,7 @@ const {
   postEmployee,
   getDepartmentIdByName
 } = require('./utils/crudFunctions.js');
+const generateChoicesArray = require('./utils/generateChoicesArray.js')
 
 function initialize() {
   console.log('Welcome to the Employee Tracker system.');
@@ -93,13 +94,7 @@ function viewAllRoles() {
 
 function addRole() {
   return getAllDepartments()
-    .then(data => {
-      let departments = data.data.reduce((acc, cur) => {
-        acc.push(cur.name);
-        return acc;
-      }, []);
-
-      return inquirer.prompt([
+    .then(data => inquirer.prompt([
         {
           type: "input",
           name: "title",
@@ -114,10 +109,10 @@ function addRole() {
           type: "list",
           name: "department",
           message: "Which department is this role for?",
-          choices: departments
+          choices: generateChoicesArray("name", data.data)
         }
       ])
-    })
+    )
     .then(async function(data) {
       const departmentIdResponse = await getDepartmentIdByName(data.department);
       data.department_id = departmentIdResponse.data[0].department_id;
@@ -154,11 +149,27 @@ async function addEmployee() {
       message: "What is the employee's last name?"
     },
     {
-      type: "input",
-      name: "last_name",
-      message: "Which department does the ?"
+      type: "list",
+      name: "role",
+      message: "Which role does the employee perform?",
+      choices: generateChoicesArray('title', employeesAndRoles.roles)
+    },
+    {
+      type: "list",
+      name: "manager",
+      message: "Who is this employee's manager?",
+      choices: generateChoicesArray('fullName', employeesAndRoles.employees)
     }
   ])
+    .then(async function(data) {
+      data.role_id = employeesAndRoles.roles.filter(roles => roles.title === data.role)[0].id;
+      data.manager_id = employeesAndRoles.employees.filter(employees => employees.fullName === data.manager)[0].id;
+      return postEmployee(data);
+    })
+    .then(data => {
+      console.log(`Added ${data.data.first_name} ${data.data.last_name} to the employees table.`);
+      return taskPrompt();
+    })
 };
 
 function editEmployeeEmail(){
