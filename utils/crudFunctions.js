@@ -30,19 +30,34 @@ function getAllRoles() {
         .then(response => response.json())
 };
 
-function getAllEmployees() {
-    return fetch('http://localhost:3001/api/employees/', {
+function getAllEmployees(data) {
+    let url = 'http://localhost:3001/api/employees?';
+
+    if (data.manager_id) {
+        url += `manager_id=${data.manager_id}`;
+    } else if (data.department_id) {
+        url += `department_id=${data.department_id}`;
+    }
+    console.log(url);
+
+    return fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+        },
+    })
+        .then(response => response.json());
+};
+
+function getManagers() {
+    return fetch('http://localhost:3001/api/employees/managers', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
         }
     })
-        .then(response => response.json())
-        .then(data => {
-            data.data.forEach(employeeObj => employeeObj.full_name = `${employeeObj.first_name} ${employeeObj.last_name}`);
-            return data;
-        });
-};
+        .then(response => response.json());
+}
 
 function postDepartment(data) {
     return fetch(`http://localhost:3001/api/department`, {
@@ -133,9 +148,10 @@ function deleteEmployee(data) {
 
 module.exports = {
     getAllDepartments,
+    getDepartmentsBudgets,
     getAllRoles,
     getAllEmployees,
-    getDepartmentsBudgets,
+    getManagers,
     postDepartment,
     postRole,
     postEmployee,
