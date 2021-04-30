@@ -82,8 +82,33 @@ function putEmployeeRole(data) {
         .then(response => response.json());
 };
 
+function deleteDepartment(data) {
+    return fetch(`http://localhost:3001/api/department/${data.id}`, {
+        method: 'DELETE',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            return response.json()});
+};
+
+function deleteRole(data) {
+    return fetch(`http://localhost:3001/api/role/${data.id}`, {
+        method: 'DELETE',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            return response.json()});
+};
+
 function deleteEmployee(data) {
-    console.log('made it to the deleteEmployee function')
     return fetch(`http://localhost:3001/api/employee/${data.id}`, {
         method: 'DELETE',
         headers: {
@@ -93,9 +118,8 @@ function deleteEmployee(data) {
         body: JSON.stringify(data)
     })
         .then(response => {
-            console.log("returned a response from server");
             return response.json()});
-}
+};
 
 module.exports = {
     getAllDepartments,
@@ -105,5 +129,7 @@ module.exports = {
     postRole,
     postEmployee,
     putEmployeeRole,
+    deleteDepartment,
+    deleteRole,
     deleteEmployee
 };
