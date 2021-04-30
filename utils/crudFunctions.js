@@ -33,12 +33,13 @@ function getAllRoles() {
 function getAllEmployees(data) {
     let url = 'http://localhost:3001/api/employees?';
 
-    if (data.manager_id) {
-        url += `manager_id=${data.manager_id}`;
-    } else if (data.department_id) {
-        url += `department_id=${data.department_id}`;
+    if (data) {
+        if (data.manager_id) {
+            url += `manager_id=${data.manager_id}`;
+        } else if (data.department_id) {
+            url += `department_id=${data.department_id}`;
+        }
     }
-    console.log(url);
 
     return fetch(url, {
         method: 'GET',
