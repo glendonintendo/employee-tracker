@@ -29,7 +29,7 @@ function taskPrompt() {
       message: "What would you like to do?",
       choices: [
         "View all departments",
-        "View total used budget by deparment",
+        "View total used budget by department",
         "View all roles", 
         "View all employees",
         "View employees by department",
@@ -53,7 +53,7 @@ function getTask(option) {
   switch (option) {
     case "View all departments":
       return viewAllDepartments();
-    case "View total used budget by deparment":
+    case "View total used budget by department":
       return viewDepartmentsBudgets();
     case "View all roles":
       return viewAllRoles();
