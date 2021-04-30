@@ -1,9 +1,10 @@
 const inquirer = require('inquirer');
 const { 
   getAllDepartments,
+  getDepartmentsBudgets,
   getAllRoles,
   getAllEmployees,
-  getDepartmentsBudgets,
+  getManagers,
   postDepartment,
   postRole,
   postEmployee,
@@ -31,6 +32,8 @@ function taskPrompt() {
         "View total used budget by deparment",
         "View all roles", 
         "View all employees",
+        "View employees by department",
+        "View employees by manager",
         "Add a department", 
         "Add a role",
         "Add an employee", 
@@ -56,6 +59,10 @@ function getTask(option) {
       return viewAllRoles();
     case "View all employees":
       return viewAllEmployees();
+    case "View employees by department":
+      return viewEmployeesByDepartment();
+    case "View employees by manager":
+        return viewEmployeesByManager();
     case "Add a department":
       return addDepartment();
     case "Add a role":
@@ -76,7 +83,7 @@ function getTask(option) {
       console.log("Buh bye.");
       return;
   }
-}
+};
 
 function viewAllDepartments() {
   return getAllDepartments()
@@ -92,7 +99,7 @@ function viewDepartmentsBudgets() {
       console.table(data.data);
       return taskPrompt();
     });
-}
+};
 
 function viewAllRoles() {
   return getAllRoles()
@@ -104,6 +111,49 @@ function viewAllRoles() {
 
 function viewAllEmployees() {
   return getAllEmployees()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
+};
+
+async function viewEmployeesByDepartment() {
+  const departments = await getAllDepartments();
+
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "name",
+      message: "For which department do you want to see the employees?",
+      choices: generateChoicesArray("name", departments.data)
+    }
+  ])
+    .then(data => {
+      data.department_id = departments.data.filter(department => department.name === data.name)[0].id;
+      console.log(data);
+      return getAllEmployees(data);
+    })
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    })
+};
+
+async function viewEmployeesByManager() {
+  const managers = await getManagers();
+
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "full_name",
+      message: "For which manager would you like to see employees?",
+      choices: generateChoicesArray("full_name", managers.data)
+    }
+  ])
+    .then(data => {
+      data.manager_id = managers.data.filter(manager => manager.full_name === data.full_name)[0].id;
+      return getAllEmployees(data);
+    })
     .then(data => {
       console.table(data.data);
       return taskPrompt();
@@ -124,7 +174,7 @@ function addDepartment() {
     .then(data => {
       console.log(`\nAdded ${data.data.name} to the departments table.\n`);
       return taskPrompt();
-    })
+    });
 };
 
 async function addRole() {
@@ -149,7 +199,7 @@ async function addRole() {
     }
   ])
     .then(data => {
-      data.department_id = departments.data.filter(department => department.name = data.department)[0].id;
+      data.department_id = departments.data.filter(department => department.name === data.department)[0].id;
       return postRole(data);
     })
     .then(data => {
@@ -260,11 +310,10 @@ async function editEmployeeManager() {
   
   return putEmployeeData(requestObj)
     .then(data => {
-      console.log(`\nUpdated ${data.data.employee_name} to have ${(data.mananger_id) ? data.manager_name: "nobody"} as a manager.\n`);
+      console.log(`\nUpdated ${data.data.employee_name} to have ${(data.data.manager_id) ? data.data.manager_name: "nobody"} as a manager.\n`);
       return taskPrompt();
     });
-}
-
+};
 
 async function removeDepartment() {
   const departments = await getAllDepartments();
@@ -305,7 +354,7 @@ async function removeRole() {
     .then(data => {
       console.log(`\nRemoved ${data.title} from the roles table.\n`);
       return taskPrompt();
-    })
+    });
 };
 
 async function removeEmployee() {
