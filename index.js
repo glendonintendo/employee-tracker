@@ -7,6 +7,8 @@ const {
   postRole,
   postEmployee,
   putEmployeeRole,
+  deleteDepartment,
+  deleteRole,
   deleteEmployee
 } = require('./utils/crudFunctions.js');
 const generateChoicesArray = require('./utils/generateChoicesArray.js');
@@ -31,6 +33,8 @@ function taskPrompt() {
         "Add a role",
         "Add an employee", 
         "Update an employee's role",
+        "Remove a department",
+        "Remove a role",
         "Remove an employee",
         "Exit application"
       ]
@@ -55,6 +59,10 @@ function getTask(option) {
       return addEmployee();
     case "Update an employee's role":
       return editEmployeeRole();
+    case "Remove a department":
+      return removeDepartment();
+    case "Remove a role":
+      return removeRole();
     case "Remove an employee":
       return removeEmployee();
     case "Exit Application":
@@ -172,7 +180,7 @@ async function addEmployee() {
     .then(data => {
       console.log(`\nAdded ${data.data.first_name} ${data.data.last_name} to the employees table.\n`);
       return taskPrompt();
-    })
+    });
 };
 
 async function editEmployeeRole(){
@@ -205,6 +213,48 @@ async function editEmployeeRole(){
     });
 };
 
+async function removeDepartment() {
+  const departments = await getAllDepartments();
+
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "name",
+      message: "Which department would you like to remove?",
+      choices: generateChoicesArray('name', departments.data)
+    }
+  ])
+    .then(data => {
+      data.id = departments.data.filter(department => department.name === data.name)[0].id;
+      return deleteDepartment(data);
+    })
+    .then(data => {
+      console.log(`\nRemoved ${data.name} from the departments table.\n`);
+      return taskPrompt();
+    });
+};
+
+async function removeRole() {
+  const roles = await getAllRoles();
+
+  return inquirer.prompt([
+    {
+      type: "list",
+      name: "title",
+      message: "Which role would you like to remove?",
+      choices: generateChoicesArray('title', roles.data)
+    }
+  ])
+    .then(data => {
+      data.id = roles.data.filter(role => role.title === data.title)[0].id;
+      return deleteRole(data);
+    })
+    .then(data => {
+      console.log(`\nRemoved ${data.title} from the roles table.\n`);
+      return taskPrompt();
+    })
+};
+
 async function removeEmployee() {
   const employees = await getAllEmployees();
 
@@ -218,10 +268,12 @@ async function removeEmployee() {
   ])
     .then(data => {
       data.id = employees.data.filter(employee => employee.full_name === data.full_name)[0].id;
-      console.log(data);
       return deleteEmployee(data);
     })
-    .then(data => console.log(data));
-}
+    .then(data => {
+      console.log(`\nRemoved ${data.full_name} from the employee table.\n`);
+      return taskPrompt();
+    });
+};
 
 initialize();
