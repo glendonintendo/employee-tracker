@@ -3,10 +3,11 @@ const {
   getAllDepartments,
   getAllRoles,
   getAllEmployees,
+  getDepartmentsBudgets,
   postDepartment,
   postRole,
   postEmployee,
-  putEmployeeRole,
+  putEmployeeData,
   deleteDepartment,
   deleteRole,
   deleteEmployee
@@ -27,12 +28,14 @@ function taskPrompt() {
       message: "What would you like to do?",
       choices: [
         "View all departments",
+        "View total used budget by deparment",
         "View all roles", 
         "View all employees",
         "Add a department", 
         "Add a role",
         "Add an employee", 
         "Update an employee's role",
+        "Update an employee's manager",
         "Remove a department",
         "Remove a role",
         "Remove an employee",
@@ -47,6 +50,8 @@ function getTask(option) {
   switch (option) {
     case "View all departments":
       return viewAllDepartments();
+    case "View total used budget by deparment":
+      return viewDepartmentsBudgets();
     case "View all roles":
       return viewAllRoles();
     case "View all employees":
@@ -59,6 +64,8 @@ function getTask(option) {
       return addEmployee();
     case "Update an employee's role":
       return editEmployeeRole();
+    case "Update an employee's manager":
+      return editEmployeeManager();
     case "Remove a department":
       return removeDepartment();
     case "Remove a role":
@@ -78,6 +85,14 @@ function viewAllDepartments() {
       return taskPrompt();
     });
 };
+
+function viewDepartmentsBudgets() {
+  return getDepartmentsBudgets()
+    .then(data => {
+      console.table(data.data);
+      return taskPrompt();
+    });
+}
 
 function viewAllRoles() {
   return getAllRoles()
@@ -205,13 +220,51 @@ async function editEmployeeRole(){
     .then(data => {
       data.id = employeesAndRoles.employees.filter(employee => employee.full_name === data.full_name)[0].id;
       data.role_id = employeesAndRoles.roles.filter(role => role.title === data.title)[0].id;
-      return putEmployeeRole(data);
+      console.log(data);
+      return putEmployeeData(data);
     })
     .then(data => {
       console.log(`\nUpdated ${data.data.full_name} to have the role of ${data.data.title}.\n`);
       return taskPrompt();
     });
 };
+
+async function editEmployeeManager() {
+  const employees = await getAllEmployees();
+  const employeeChoices = generateChoicesArray("full_name", employees.data);
+
+  const employeeResponse = await inquirer.prompt([
+    {
+      type: "list",
+      name: "employee_name",
+      message: "Which employee would you like to update?",
+      choices: employeeChoices
+    }
+  ]);
+  
+  const managerResponse = await inquirer.prompt([
+    {
+      type: "list",
+      name: "manager_name",
+      message: "Who is this employee's manager?",
+      choices: ["None", ...employeeChoices.filter(employee => employee !== employeeResponse.employee_name)]
+    }
+  ]);
+
+  const requestObj = {
+    employee_name: employeeResponse.employee_name,
+    manager_name: managerResponse.manager_name,    
+    id: employees.data.filter(employee => employee.full_name === employeeResponse.employee_name)[0].id,
+    manager_id: (managerResponse.manager_name === "None") ? null: employees.data.filter(employee => employee.full_name === managerResponse.manager_name)[0].id
+  };
+  
+  return putEmployeeData(requestObj)
+    .then(data => {
+      console.log(`\nUpdated ${data.data.employee_name} to have ${(data.mananger_id) ? data.manager_name: "nobody"} as a manager.\n`);
+      return taskPrompt();
+    });
+}
+
 
 async function removeDepartment() {
   const departments = await getAllDepartments();
