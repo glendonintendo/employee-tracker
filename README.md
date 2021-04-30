@@ -1,36 +1,39 @@
 # Employee Tracker <!-- omit in toc -->
 - [Description](#description)
 - [Technologies Used](#technologies-used)
-- [Installation, Usage, and Tests](#installation-usage-and-tests)
+- [Usage](#usage)
 - [Demo](#demo)
-- [Submission Requirements](#submission-requirements)
-  - [User Story](#user-story)
-  - [Acceptance Criteria](#acceptance-criteria)
-  - [Grading Criteria](#grading-criteria)
+- [User Story](#user-story)
+- [Acceptance Criteria](#acceptance-criteria)
 ## Description
-
+The Employee Tracker is a command line application that prompt the user to view, add, update, and delete data from an employees database. 
 ## Technologies Used
-- inquirer
-- express
-- dotenv
-- async queries [here](https://www.npmjs.com/package/mysql2)
-- console.table [here](https://www.npmjs.com/package/console.table)
-- jest
-- nodemon
-- mysql
-- node-fetch
-## Installation, Usage, and Tests
+- inquirer: used to prompt the user with questions and get data objects to send to server
+- express: used to create and implement a local server
+- dotenv: used to hide private login information for mysql
+- console.table: used to create prettier tables in the command line
+- mysql: used for database management
+- node-fetch: used to fetch apis from node
+- nodemon: used to automatically reload server when server files have been edited (dev)
 
+## Usage
+The application uses mysql, so it is required to have my ql installed before attempting the next steps.
+
+To create your database and table, run `SOURCE db/db.sql;` and `SOURCE db/schema.sql` from mysql. To populate the table with test data, `SOURCE db/seeds.sql` can be used as well.
+
+From the command line, start the server with the command `npm start`. Then, from a separate command line, use the command `node index.js` to start the application.
 ## Demo
+A demo video of my deployed application can be found [here](https://www.youtube.com/watch?v=vsWZeFcuSV4).
+
+My data tables are structured similar to the diagram below:
 ![](assets/12-sql-homework-demo-02.png)
-## Submission Requirements
-### User Story
+## User Story
 ```
 AS A business owner
 I WANT to be able to view and manage the departments, roles, and employees in my company
 SO THAT I can organize and plan my business
 ```
-### Acceptance Criteria
+## Acceptance Criteria
 ```
 GIVEN a command-line application that accepts user input
 WHEN I start the application
@@ -50,50 +53,3 @@ THEN I am prompted to enter the employee’s first name, last name, role, and ma
 WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
 ```
-### Grading Criteria
-#### Deliverables - 10% <!-- omit in toc -->
-- [ ] GitHub repo containing application code
-#### Walkthrough Video - 27% <!-- omit in toc -->
-- [ ] Demonstrates functionality of Employee Tracker
-- [ ] Link to video included in project README
-- [ ] Shows all technical acceptance criteria being met
-- [ ] Demonstrates how user would invoke app from command line
-- [ ] Demonstrates functional menu with options outlined in acceptance criteria
-#### Technical Acceptance Criteria - 40% <!-- omit in toc -->
-- [ ] Uses Inquirer, MySQL2, and console.table packages
-- [ ] Follows table schema
-  - [ ] Department:
-    - [ ] id: INT PRIMARY KEY
-    - [ ] name: VARCHAR(30) to hold department name
-  - [ ] Role:
-    - [ ] id: INT PRIMARY KEY
-    - [ ] title: VARCHAR(30) to hold the role title
-    - [ ] salary: DECIMAL to hold role salary
-    - [ ] department_id: INT to hold reference to department role belongs to
-  - [ ] Employee:
-    - [ ] id: INT PRIMARY KEY
-    - [ ] first_name: VARCHAR(30) to hold employee last name
-    - [ ] role_id: INT to hold reference to employee role
-    - [ ] manager_id: INT to hold reference to another employee that is manager of current employee (may be null if no manager)
-- [ ] User presented with options:
-  - [ ] View all departments: table showing department names and department ids
-  - [ ] View all roles: table with job title, role id, department that role belongs to, and salary
-  - [ ] View all employees: table with employees ids, first names, last names, job titles, departments, salaries, and managers that employee reports to
-  - [ ] Add department: enter name and then department is populated to department table
-  - [ ] Add role: enter name, salary, and department is populated to role table
-  - [ ] Add employee: enter first name, last name, role, and manager is populated to employee table
-  - [ ] Update employee role: select employee, enter new role, update employee table
-- [ ] Bonus:
-  - [ ] User may update employee managers
-  - [ ] User may view employees by manager
-  - [ ] User may view employees by department
-  - [ ] User may delete departments, role, and employees
-  - [ ] User may view combined salaries of all employees in a department
-#### Repository Quality - 13% <!-- omit in toc -->
-- [ ] Has a unique name
-- [ ] Follows best practices for file structure and naming conventions
-- [ ] Follows best practices for class/id naming conventions, indentation, quality comments, etc.
-- [ ] Contains multiple descriptive commit messages
-- [ ] Contains a high-quality README with description and link to walkthrough video
-#### Application Quality - 10% <!-- omit in toc -->
-- [ ] User experience is intuitive and easy to navigate
