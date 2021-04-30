@@ -80,11 +80,10 @@ router.put('/employee/:id', (req, res) => {
     });
 });
 
-router.delete('employee/:id', (req, res) => {
-    const sql = `DELETE FROM employees WHERE id = 5`;
+// delete employee by id
+router.delete('/employee/:id', (req, res) => {
+    const sql = `DELETE FROM employees WHERE id = ?`;
     const params = [req.params.id];
-
-    console.log(sql, params);
 
     db.query(sql, params, (err, result) => {
         if (err) {
@@ -94,11 +93,11 @@ router.delete('employee/:id', (req, res) => {
                 message: 'Employee not found'
             });
         } else {
-            console.log("made it to the correct else statement")
             res.json({
                 message: 'deleted',
                 changes: result.affectedRows,
-                id: req.params.id
+                id: req.params.id,
+                full_name: req.body.full_name
             });
         }
     });
