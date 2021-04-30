@@ -19,6 +19,28 @@ router.get('/departments', (req, res) => {
     });
 });
 
+// view all departments budgets
+router.get('/departments/budgets', (req, res) => {
+    const sql = `
+    SELECT departments.id AS id, name AS department, SUM(salary) as total_budget
+    FROM employees
+    LEFT JOIN roles ON employees.role_id = roles.id
+    LEFT JOIN departments ON roles.department_id = departments.id
+    GROUP BY department_id;
+    `;
+
+    db.query(sql, (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({
+            message: 'success',
+            data: rows
+        });
+    });
+});
+
 // add department
 router.post('/department', ({ body }, res) => {
     const errors = inputCheck(body, 'name');
