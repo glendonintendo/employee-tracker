@@ -1,4 +1,3 @@
-const e = require('express');
 const express = require('express');
 const db = require('../db/connection.js');
 const inputCheck = require('../utils/inputCheck.js');
