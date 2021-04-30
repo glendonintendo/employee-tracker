@@ -50,18 +50,19 @@ router.post('/employee', ({ body }, res) => {
     });
 });
 
-// update employee role
-router.put('/employee/:id', (req, res) => {
-    const errors = inputCheck(req.body, 'role_id');
-    if (errors) {
-        res.status(400).json({ error: errors });
-        return;
+// update employee by id
+router.put('/employee/:id', (req, res) => {    
+    let sql;
+    let params;
+
+    if (req.body.role_id) {
+        sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
+        params = [req.body.role_id, req.params.id];
+    } else {
+        sql = `UPDATE employees SET manager_id = ? WHERE id = ?`;
+        params = [req.body.manager_id, req.params.id];
     }
-
-    console.log(req.body);
-    const sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
-    const params = [req.body.role_id, req.params.id];
-
+    
     db.query(sql, params, (err, result) => {
         if (err) {
             res.status(400).json({ error: err.message });
