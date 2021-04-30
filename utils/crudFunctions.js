@@ -10,6 +10,16 @@ function getAllDepartments() {
         .then(response => response.json());
 };
 
+function getDepartmentsBudgets() {
+    return fetch('http://localhost:3001/api/departments/budgets', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json());
+}
+
 function getAllRoles() {
     return fetch('http://localhost:3001/api/roles/', {
         method: 'GET',
@@ -70,7 +80,7 @@ function postEmployee(data) {
         .then(response => response.json());
 };
 
-function putEmployeeRole(data) {
+function putEmployeeData(data) {
     return fetch(`http://localhost:3001/api/employee/${data.id}`, {
         method: 'PUT',
         headers: {
@@ -125,10 +135,11 @@ module.exports = {
     getAllDepartments,
     getAllRoles,
     getAllEmployees,
+    getDepartmentsBudgets,
     postDepartment,
     postRole,
     postEmployee,
-    putEmployeeRole,
+    putEmployeeData,
     deleteDepartment,
     deleteRole,
     deleteEmployee
